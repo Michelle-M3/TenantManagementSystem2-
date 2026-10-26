@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.tenantmanagementsystem2.databinding.FragmentAddTenantBinding
 
 class AddTenantFragment : Fragment() {
@@ -24,7 +26,35 @@ class AddTenantFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // The SAVE button actions are expanded in Practical 3
+        binding.saveButton.setOnClickListener {
+            val name = binding.tenantNameEditText.text.toString().trim()
+            val phone = binding.phoneEditText.text.toString().trim()
+            val rent = binding.rentEditText.text.toString().trim()
+
+            var isValid = true
+            if (name.isEmpty()) {
+                binding.tenantNameEditText.error = "Required"
+                isValid = false
+            }
+            if (phone.isEmpty()) {
+                binding.phoneEditText.error = "Required"
+                isValid = false
+            }
+            if (rent.isEmpty()) {
+                binding.rentEditText.error = "Required"
+                isValid = false
+            }
+
+            if (!isValid) return@setOnClickListener
+
+            val tenant = Tenant(name, phone, rent)
+            TenantRepository.addTenant(tenant)
+
+            Toast.makeText(requireContext(), "Tenant saved successfully", Toast.LENGTH_SHORT).show()
+
+            val action = AddTenantFragmentDirections.actionAddTenantFragmentToViewTenantsFragment(tenant)
+            findNavController().navigate(action)
+        }
     }
 
     override fun onDestroyView() {
